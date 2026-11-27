@@ -41,7 +41,19 @@ static SSTabBarAppearanceStyle *axs_hg999_transparentTabBarStyle(
     return style;
 }
 
-// 只在红果根底栏正在采用视频流样式时启用背景透明。
+// 只在红果根底栏的“我的/首页视频流”页面启用透明背景。
+static BOOL axs_hg999_isHomeVideoFeedTab(SSTabBarController *controller) {
+    if (!controller || !controller.isBottomFeedTab) {
+        return NO;
+    }
+
+    Class feedClass = objc_getClass("SSVideoSeriesFeedViewController");
+    UIViewController *selectedController = controller.selectedViewController;
+    return feedClass && selectedController &&
+           [selectedController isKindOfClass:feedClass];
+}
+
+// 当前功能只改红果首页竖屏短视频流的底栏外观。
 static BOOL axs_hg999_shouldClearVideoFeedTabBar(SSTabBar *tabBar) {
     if (![[AxsHG999Config axs_hg999_shared] axs_hg999_isEnabled] ||
         !axs_hg999_isVideoFullscreenTabBarTransparent()) {
@@ -50,18 +62,19 @@ static BOOL axs_hg999_shouldClearVideoFeedTabBar(SSTabBar *tabBar) {
 
     SSTabBarController *controller = axs_hg999_rootTabBarController();
     return controller && controller.customTabBar == tabBar &&
-           controller.settledBottomTabBarAppearanceUseVideoFeedStyle;
+           axs_hg999_isHomeVideoFeedTab(controller);
 }
 
 %hook SSTabBar
 
 - (void)applyTabBarAppearanceStyle:(SSTabBarAppearanceStyle *)style
-                  refreshForeground:(BOOL)refreshForeground {
+                  refreshForeground:(BOOL)refreshForeground
+                      refreshImages:(BOOL)refreshImages {
     if (axs_hg999_shouldClearVideoFeedTabBar(self)) {
         SSTabBarAppearanceStyle *transparentStyle =
             axs_hg999_transparentTabBarStyle(style);
         if (transparentStyle) {
-            %orig(transparentStyle, refreshForeground);
+            %orig(transparentStyle, refreshForeground, refreshImages);
             return;
         }
     }
@@ -77,7 +90,8 @@ static BOOL axs_hg999_shouldClearVideoFeedTabBar(SSTabBar *tabBar) {
                             sourceViewController:(id)sourceViewController {
     %orig;
     SSTabBarController *rootController = axs_hg999_rootTabBarController();
-    if (!useVideoFeedStyle || rootController != self ||
+    if (rootController != self ||
+        !axs_hg999_isHomeVideoFeedTab(self) ||
         ![[AxsHG999Config axs_hg999_shared] axs_hg999_isEnabled] ||
         !axs_hg999_isVideoFullscreenTabBarTransparent() || !self.customTabBar) {
         return;
@@ -87,7 +101,8 @@ static BOOL axs_hg999_shouldClearVideoFeedTabBar(SSTabBar *tabBar) {
         axs_hg999_transparentTabBarStyle(self.customTabBar.appearanceStyle);
     if (transparentStyle) {
         [self.customTabBar applyTabBarAppearanceStyle:transparentStyle
-                                    refreshForeground:NO];
+                                    refreshForeground:NO
+                                        refreshImages:NO];
     }
 }
 

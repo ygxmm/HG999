@@ -15,12 +15,13 @@ NSString *axs_hg999_resourcePath(NSString *rootfsPath) {
 #endif
 }
 
-// 偏好文件位于移动用户目录，不随越狱安装路径改写。
+// 返回红果应用容器内偏好文件的可写路径，不使用系统全局偏好目录。
 NSString *axs_hg999_preferencesPath(void) {
-    NSString *path = @"/var/mobile/Library/Preferences/com.axs.hg999.plist";
-#ifdef THEOS_PACKAGE_SCHEME_ROOTHIDE
-    return jbroot(path);
-#else
-    return path;
-#endif
+    NSURL *url = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory
+                                                        inDomains:NSUserDomainMask].firstObject;
+    if (!url) {
+        return nil;
+    }
+    return [[url URLByAppendingPathComponent:@"HG999" isDirectory:YES]
+            URLByAppendingPathComponent:@"preferences.plist"].path;
 }

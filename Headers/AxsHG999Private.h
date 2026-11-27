@@ -10,12 +10,12 @@
 - (void)axs_hg999_reload;
 @end
 
+FOUNDATION_EXPORT NSString * const AxsHG999PreferencesDomain;
+FOUNDATION_EXPORT NSString * const AxsHG999PreferencesChanged;
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-FOUNDATION_EXPORT NSString * const AxsHG999PreferencesDomain;
-FOUNDATION_EXPORT NSString * const AxsHG999PreferencesChanged;
 
 NSString *axs_hg999_resourcePath(NSString *rootfsPath);
 NSString *axs_hg999_preferencesPath(void);
@@ -69,18 +69,22 @@ BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
 - (void)setShouldShowBottomCorner:(BOOL)show;
 @end
 
+// 只刷新 HG999 功能开关所用的原生单元格事件。
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-// 只刷新 HG999 功能开关所用的原生单元格事件。
 void axs_hg999_prepareFullscreenSettingCell(SSSettingTableViewCell *cell);
 BOOL axs_hg999_isFullscreenSettingCell(SSSettingTableViewCell *cell);
+#if defined(__cplusplus)
+}
+#endif
 
 // 仅通过运行时查找创建红果私有设置行，避免生成私有类链接符号。
+#if defined(__cplusplus)
+extern "C" {
+#endif
 UITableViewCell *axs_hg999_dequeueNativeSettingCell(UITableView *tableView,
                                                      NSString *reuseIdentifier);
-
 #if defined(__cplusplus)
 }
 #endif
@@ -108,14 +112,18 @@ UITableViewCell *axs_hg999_dequeueNativeSettingCell(UITableView *tableView,
 
 @interface SSTabBar : UIView
 @property (nonatomic, strong) SSTabBarAppearanceStyle *appearanceStyle;
-- (void)applyTabBarAppearanceStyle:(id)style refreshForeground:(BOOL)refreshForeground;
+- (void)applyTabBarAppearanceStyle:(id)style
+                 refreshForeground:(BOOL)refreshForeground
+                     refreshImages:(BOOL)refreshImages;
 @end
 
 @interface SSTabBarController : UIViewController
 @property (nonatomic, strong) SSTabBar *customTabBar;
+@property (nonatomic, readonly, strong) UIViewController *selectedViewController;
 @property (nonatomic, assign) BOOL settledBottomTabBarAppearanceUseVideoFeedStyle;
 @property (nonatomic, weak) id settledBottomTabBarAppearanceTabModel;
 @property (nonatomic, weak) UIViewController *settledBottomTabBarAppearanceSourceViewController;
+- (BOOL)isBottomFeedTab;
 - (void)invalidateSettledBottomTabBarAppearanceCache;
 - (void)resetCurrentBottomTabBackgroundColor;
 - (void)settleBottomTabBarAppearanceWithTabModel:(id)tabModel
