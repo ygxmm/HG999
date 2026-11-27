@@ -77,6 +77,7 @@ BOOL axs_hg999_setVideoFullscreenTabBarTransparent(BOOL enabled) {
 
     [[AxsHG999Config axs_hg999_shared] axs_hg999_reload];
     axs_hg999_refreshVideoTabBarAppearance();
+    axs_hg999_refreshVideoFeedLayout();
     return YES;
 }
 

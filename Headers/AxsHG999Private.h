@@ -144,6 +144,7 @@ UITableViewCell *axs_hg999_createVideoFullscreenOptionCell(UITableView *tableVie
 BOOL axs_hg999_isVideoFullscreenTabBarTransparent(void);
 BOOL axs_hg999_setVideoFullscreenTabBarTransparent(BOOL enabled);
 void axs_hg999_refreshVideoTabBarAppearance(void);
+void axs_hg999_refreshVideoFeedLayout(void);
 
 // 由设置入口模块创建原生风格单元格并打开 HG999 一级页面。
 UITableViewCell *axs_hg999_createSettingsEntryCell(SSSettingViewController *controller,
