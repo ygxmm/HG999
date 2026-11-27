@@ -1,0 +1,11 @@
+Package: com.axs.hg999
+Name: HG999
+Version: 5.2.0
+Architecture: iphoneos-arm
+Description: 红果短剧插件
+Maintainer: Axs
+Author: Axs
+Section: Axs-Tweaks
+Depends: mobilesubstrate
+Icon: https://axs66.github.io/pro/icon/hg999.png
+Sileodepiction: https://axs66.github.io/pro/sileodepiction/hg999/js.json

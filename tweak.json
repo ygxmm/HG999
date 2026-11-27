@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "HG999",
+  "id": "hg999",
+  "display_name": "HG999",
+  "class_prefix": "AxsHG999",
+  "symbol_prefix": "axs_hg999",
+  "package": "com.axs.hg999",
+  "bundle": "com.phoenix.video",
+  "sdk_version": "16.5",
+  "minimum_ios": "15.0",
+  "preferences": false,
+  "slider": false,
+  "github_actions": true
+}
