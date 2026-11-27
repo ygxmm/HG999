@@ -10,6 +10,10 @@
 - (void)axs_hg999_reload;
 @end
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 FOUNDATION_EXPORT NSString * const AxsHG999PreferencesDomain;
 FOUNDATION_EXPORT NSString * const AxsHG999PreferencesChanged;
 
@@ -17,6 +21,9 @@ NSString *axs_hg999_resourcePath(NSString *rootfsPath);
 NSString *axs_hg999_preferencesPath(void);
 NSDictionary *axs_hg999_readPreferences(void);
 BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
+#if defined(__cplusplus)
+}
+#endif
 
 @interface FQReaderSaaSBaseViewController : UIViewController
 - (void)setTitle:(NSString *)title;
@@ -39,6 +46,7 @@ BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
 
 @interface SSMaterialSwitch : UIControl
 @property (nonatomic, assign) BOOL on;
+- (void)setOn:(BOOL)on animated:(BOOL)animated;
 @end
 
 @interface SSSettingTableViewCell : UITableViewCell
@@ -61,11 +69,27 @@ BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
 - (void)setShouldShowBottomCorner:(BOOL)show;
 @end
 
-@interface AxsHG999FullscreenOptionCell : SSSettingTableViewCell
-- (void)axs_hg999_switchValueChanged:(SSMaterialSwitch *)switchControl;
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+// 只刷新 HG999 功能开关所用的原生单元格事件。
+void axs_hg999_prepareFullscreenSettingCell(SSSettingTableViewCell *cell);
+BOOL axs_hg999_isFullscreenSettingCell(SSSettingTableViewCell *cell);
+
+// 仅通过运行时查找创建红果私有设置行，避免生成私有类链接符号。
+UITableViewCell *axs_hg999_dequeueNativeSettingCell(UITableView *tableView,
+                                                     NSString *reuseIdentifier);
+
+#if defined(__cplusplus)
+}
+#endif
+
+@interface AxsHG999SettingsViewController : UITableViewController
 @end
 
-@interface AxsHG999SettingsViewController : FQReaderSaaSBaseTableViewController
+@interface AxsHG999FullscreenSwitchAction : NSObject
+- (void)axs_hg999_switchValueChanged:(SSMaterialSwitch *)switchControl;
 @end
 
 @interface SSTabBarAppearanceStyle : NSObject
@@ -103,6 +127,10 @@ BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
 + (SSTabBarController *)getRootTabBarController;
 @end
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 // 创建首个功能开关单元格，并在变更后写入配置。
 UITableViewCell *axs_hg999_createVideoFullscreenOptionCell(UITableView *tableView);
 BOOL axs_hg999_isVideoFullscreenTabBarTransparent(void);
@@ -112,3 +140,6 @@ void axs_hg999_refreshVideoTabBarAppearance(void);
 // 由设置入口模块创建原生风格单元格并打开 HG999 一级页面。
 UITableViewCell *axs_hg999_createSettingsEntryCell(SSSettingViewController *controller,
                                                    UITableView *tableView);
+#if defined(__cplusplus)
+}
+#endif

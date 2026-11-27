@@ -4,12 +4,11 @@
 UITableViewCell *axs_hg999_createSettingsEntryCell(SSSettingViewController *controller,
                                                    UITableView *tableView) {
     static NSString * const reuseIdentifier = @"AxsHG999.settings.entry";
-    SSSettingTableViewCell *cell =
-        (SSSettingTableViewCell *)[tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
+    SSSettingTableViewCell *cell = (SSSettingTableViewCell *)
+        axs_hg999_dequeueNativeSettingCell(tableView, reuseIdentifier);
     if (!cell) {
-        cell = [[SSSettingTableViewCell alloc]
-                initWithStyle:UITableViewCellStyleDefault
-                reuseIdentifier:reuseIdentifier];
+        return [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                     reuseIdentifier:reuseIdentifier];
     }
 
     cell.titleStr = @"HG999";

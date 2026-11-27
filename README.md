@@ -5,7 +5,7 @@
 - **目标应用：** `com.phoenix.video`；随附运行时清单标记版本 7.4.5 / build 7.4.5.33、iOS 16.6。
 - **软件包标识：** `com.axs.hg999`。
 - **代码命名空间：** `AxsHG999`。
-- **功能：** 在红果原生 `SSSettingViewController` 设置列表末尾新增独立分组“HG999”；点击后用红果原生 `SSSettingTableViewCell` 和 `FQReaderSaaSBaseTableViewController` 导航栈打开一级页面，标题为“HG999”。首个开关为“视频全屏播放底栏透明”，默认关闭。用户确认范围为**首页竖屏短视频流**：启用后仅在红果根底栏采用视频流样式时将背景颜色及明暗背景层透明化，保留图标、文字和按钮；不改播放器尺寸或播放布局。
+- **功能：** 在红果原生设置列表末尾新增“HG999”入口，点击打开一级设置页，标题为“HG999”。页面采用 iOS 分组列表和系统导航栏风格；首个开关为“视频全屏播放底栏透明”，默认关闭。用户确认范围为**首页竖屏短视频流**：启用后仅在红果根底栏采用视频流样式时将背景颜色及明暗背景层透明化，保留图标、文字和按钮；不改播放器尺寸或播放布局。
 - **注入范围：** `AxsHG999.plist` 仅匹配 `com.phoenix.video`。设置列表由单一 `%hook SSSettingViewController` 扩展；视频底栏外观通过独立 Hook 模块处理。
 
 ## 模块结构
@@ -14,7 +14,9 @@
 - `Hooks/AxsHG999Main.xm`：初始化配置模块。
 - `Hooks/AxsHG999SettingsEntry.xm`：只负责向原生设置列表注入入口分组。
 - `Hooks/AxsHG999SettingsPage.xm`：实现 HG999 首层页面与功能列表。
-- `Hooks/AxsHG999VideoFullscreen.xm`：只改红果视频流样式下的底栏背景，不触碰播放器布局或按钮层。
+- `Hooks/AxsHG999VideoFullscreen.xm`：通过运行时查找底栏控制器，只改视频流样式下的底栏背景，不触碰播放器布局或按钮层。
+- `Hooks/AxsHG999FullscreenSwitch.xm`：只在 HG999 开关单元格布局后绑定原生开关事件。
+- `Sources/AxsHG999NativeSettings.m`：运行时查找红果私有单元格并创建，不让私有类产生静态链接依赖。
 - `Sources/AxsHG999SettingsEntry.m`：构造 HG999 原生入口行并负责页面跳转。
 - `Sources/AxsHG999FullscreenSetting.m`：构造功能开关、保存偏好并触发原生底栏样式刷新。
 - `Sources/AxsHG999Config.m`、`AxsHG999Preferences.m`、`AxsHG999Paths.m`：分别管理配置快照、偏好读写和越狱路径适配。

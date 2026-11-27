@@ -1,4 +1,17 @@
+#import <objc/message.h>
+#import <objc/runtime.h>
+
 #import "AxsHG999Private.h"
+
+// 通过运行时获取红果根标签栏控制器，避免生成私有类链接符号。
+static SSTabBarController *axs_hg999_rootTabBarController(void) {
+    Class managerClass = objc_getClass("SSNavigationManager");
+    if (!managerClass) {
+        return nil;
+    }
+    return ((id (*)(id, SEL))objc_msgSend)(managerClass,
+                                           @selector(getRootTabBarController));
+}
 
 // 复制红果当前样式，只将底栏背景相关字段改为透明。
 static SSTabBarAppearanceStyle *axs_hg999_transparentTabBarStyle(
@@ -7,7 +20,13 @@ static SSTabBarAppearanceStyle *axs_hg999_transparentTabBarStyle(
         return nil;
     }
 
-    SSTabBarAppearanceStyle *style = [[SSTabBarAppearanceStyle alloc] init];
+    Class styleClass = objc_getClass("SSTabBarAppearanceStyle");
+    if (!styleClass) {
+        return nil;
+    }
+    id allocated = ((id (*)(id, SEL))objc_msgSend)(styleClass, @selector(alloc));
+    id styleObject = ((id (*)(id, SEL))objc_msgSend)(allocated, @selector(init));
+    SSTabBarAppearanceStyle *style = styleObject;
     style.ratio = nativeStyle.ratio;
     style.darkMode = nativeStyle.darkMode;
     style.foregroundStyle = nativeStyle.foregroundStyle;
@@ -29,7 +48,7 @@ static BOOL axs_hg999_shouldClearVideoFeedTabBar(SSTabBar *tabBar) {
         return NO;
     }
 
-    SSTabBarController *controller = [SSNavigationManager getRootTabBarController];
+    SSTabBarController *controller = axs_hg999_rootTabBarController();
     return controller && controller.customTabBar == tabBar &&
            controller.settledBottomTabBarAppearanceUseVideoFeedStyle;
 }
@@ -57,7 +76,7 @@ static BOOL axs_hg999_shouldClearVideoFeedTabBar(SSTabBar *tabBar) {
                               useVideoFeedStyle:(BOOL)useVideoFeedStyle
                             sourceViewController:(id)sourceViewController {
     %orig;
-    SSTabBarController *rootController = [SSNavigationManager getRootTabBarController];
+    SSTabBarController *rootController = axs_hg999_rootTabBarController();
     if (!useVideoFeedStyle || rootController != self ||
         ![[AxsHG999Config axs_hg999_shared] axs_hg999_isEnabled] ||
         !axs_hg999_isVideoFullscreenTabBarTransparent() || !self.customTabBar) {

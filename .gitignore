@@ -1,5 +1,8 @@
 # 本机研究头文件包超过 GitHub 单文件限制，继续保留在设备本地。
 /Research/Headers/RedFruit-7.4.5-all-classes.zip
 
+# 本地故障复盘记录不属于公开源码。
+/.learnings/
+
 # 本地生成的源码压缩副本，可由仓库文件重新打包。
 /HG999-source.zip

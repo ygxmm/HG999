@@ -1,4 +1,59 @@
+#import <objc/message.h>
+#import <objc/runtime.h>
+
 #import "AxsHG999Private.h"
+
+static char axs_hg999_fullscreenOptionCellMarker;
+static char axs_hg999_fullscreenSwitchActionAssociation;
+
+@interface AxsHG999FullscreenSwitchAction ()
+@property (nonatomic, weak) SSMaterialSwitch *switchControl;
+@end
+
+@implementation AxsHG999FullscreenSwitchAction
+
+- (void)axs_hg999_switchValueChanged:(SSMaterialSwitch *)switchControl {
+    BOOL nextValue = switchControl.on;
+    if (!axs_hg999_setVideoFullscreenTabBarTransparent(nextValue)) {
+        [switchControl setOn:!nextValue animated:YES];
+    }
+}
+
+@end
+
+// 标记 HG999 专属开关，并把事件处理对象与单元格绑定。
+void axs_hg999_prepareFullscreenSettingCell(SSSettingTableViewCell *cell) {
+    if (!cell) {
+        return;
+    }
+
+    objc_setAssociatedObject(cell, &axs_hg999_fullscreenOptionCellMarker,
+                             @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    AxsHG999FullscreenSwitchAction *action =
+        objc_getAssociatedObject(cell, &axs_hg999_fullscreenSwitchActionAssociation);
+    if (!action) {
+        action = [[AxsHG999FullscreenSwitchAction alloc] init];
+        objc_setAssociatedObject(cell, &axs_hg999_fullscreenSwitchActionAssociation,
+                                 action, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    SSMaterialSwitch *switchControl = cell.rightSwitch;
+    if (!switchControl) {
+        return;
+    }
+    action.switchControl = switchControl;
+    [switchControl removeTarget:action
+                         action:@selector(axs_hg999_switchValueChanged:)
+               forControlEvents:UIControlEventValueChanged];
+    [switchControl addTarget:action
+                       action:@selector(axs_hg999_switchValueChanged:)
+             forControlEvents:UIControlEventValueChanged];
+}
+
+// 只识别带有 HG999 关联标记的设置单元格。
+BOOL axs_hg999_isFullscreenSettingCell(SSSettingTableViewCell *cell) {
+    return [objc_getAssociatedObject(cell, &axs_hg999_fullscreenOptionCellMarker) boolValue];
+}
 
 static NSString * const axs_hg999_videoFullscreenTabBarTransparentKey =
     @"video_fullscreen_tab_bar_transparent";
@@ -28,7 +83,12 @@ BOOL axs_hg999_setVideoFullscreenTabBarTransparent(BOOL enabled) {
 // 按红果当前选中的标签页和样式参数重新应用原生底栏外观。
 void axs_hg999_refreshVideoTabBarAppearance(void) {
     void (^refresh)(void) = ^{
-        SSTabBarController *controller = [SSNavigationManager getRootTabBarController];
+        Class managerClass = objc_getClass("SSNavigationManager");
+        if (!managerClass) {
+            return;
+        }
+        SSTabBarController *controller = ((id (*)(id, SEL))objc_msgSend)(
+            managerClass, @selector(getRootTabBarController));
         if (!controller) {
             return;
         }
@@ -55,37 +115,14 @@ void axs_hg999_refreshVideoTabBarAppearance(void) {
     }
 }
 
-@implementation AxsHG999FullscreenOptionCell
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    SSMaterialSwitch *switchControl = self.rightSwitch;
-    [switchControl removeTarget:self
-                          action:@selector(axs_hg999_switchValueChanged:)
-                forControlEvents:UIControlEventValueChanged];
-    [switchControl addTarget:self
-                      action:@selector(axs_hg999_switchValueChanged:)
-            forControlEvents:UIControlEventValueChanged];
-}
-
-- (void)axs_hg999_switchValueChanged:(SSMaterialSwitch *)switchControl {
-    BOOL nextValue = switchControl.on;
-    if (!axs_hg999_setVideoFullscreenTabBarTransparent(nextValue)) {
-        self.rightSwitchOn = !nextValue;
-    }
-}
-
-@end
-
-// 创建红果原生样式的功能开关行，并在保存失败时恢复原状态。
+// 创建红果原生样式的功能开关行，并绑定其原生切换控件。
 UITableViewCell *axs_hg999_createVideoFullscreenOptionCell(UITableView *tableView) {
     static NSString * const reuseIdentifier = @"AxsHG999.videoFullscreenTabBar";
-    AxsHG999FullscreenOptionCell *cell =
-        (AxsHG999FullscreenOptionCell *)[tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
+    SSSettingTableViewCell *cell = (SSSettingTableViewCell *)
+        axs_hg999_dequeueNativeSettingCell(tableView, reuseIdentifier);
     if (!cell) {
-        cell = [[AxsHG999FullscreenOptionCell alloc]
-                initWithStyle:UITableViewCellStyleDefault
-                reuseIdentifier:reuseIdentifier];
+        return [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                     reuseIdentifier:reuseIdentifier];
     }
 
     cell.titleStr = @"视频全屏播放底栏透明";
@@ -95,5 +132,6 @@ UITableViewCell *axs_hg999_createVideoFullscreenOptionCell(UITableView *tableVie
     cell.rightSwitchOn = axs_hg999_isVideoFullscreenTabBarTransparent();
     cell.shouldShowTopCorner = YES;
     cell.shouldShowBottomCorner = YES;
+    axs_hg999_prepareFullscreenSettingCell(cell);
     return cell;
 }

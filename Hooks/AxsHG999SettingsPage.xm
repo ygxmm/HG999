@@ -4,9 +4,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self setTitle:@"HG999"];
+    [self.navigationItem setTitle:@"HG999"];
 
-    // 沿用红果原生导航栏、自适应背景与分组间距。
+    // 使用分组列表风格并保留红果系统导航栏。
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight = 56.0;
     self.tableView.sectionHeaderHeight = 12.0;
