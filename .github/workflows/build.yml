@@ -82,6 +82,9 @@ jobs:
       - name: Verify fullscreen layout contract
         run: python3 Tests/check_fullscreen_layout.py
 
+      - name: Verify native settings order contract
+        run: python3 Tests/check_settings_order.py
+
       - name: Build Package
         run: |
           sh build.sh "${{ matrix.build_variant }}"
