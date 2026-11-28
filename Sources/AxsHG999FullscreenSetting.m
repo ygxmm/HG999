@@ -3,58 +3,6 @@
 
 #import "AxsHG999Private.h"
 
-static char axs_hg999_fullscreenOptionCellMarker;
-static char axs_hg999_fullscreenSwitchActionAssociation;
-
-@interface AxsHG999FullscreenSwitchAction ()
-@property (nonatomic, weak) SSMaterialSwitch *switchControl;
-@end
-
-@implementation AxsHG999FullscreenSwitchAction
-
-- (void)axs_hg999_switchValueChanged:(SSMaterialSwitch *)switchControl {
-    BOOL nextValue = switchControl.on;
-    if (!axs_hg999_setVideoFullscreenTabBarTransparent(nextValue)) {
-        [switchControl setOn:!nextValue animated:YES];
-    }
-}
-
-@end
-
-// 标记 HG999 专属开关，并把事件处理对象与单元格绑定。
-void axs_hg999_prepareFullscreenSettingCell(SSSettingTableViewCell *cell) {
-    if (!cell) {
-        return;
-    }
-
-    objc_setAssociatedObject(cell, &axs_hg999_fullscreenOptionCellMarker,
-                             @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    AxsHG999FullscreenSwitchAction *action =
-        objc_getAssociatedObject(cell, &axs_hg999_fullscreenSwitchActionAssociation);
-    if (!action) {
-        action = [[AxsHG999FullscreenSwitchAction alloc] init];
-        objc_setAssociatedObject(cell, &axs_hg999_fullscreenSwitchActionAssociation,
-                                 action, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-
-    SSMaterialSwitch *switchControl = cell.rightSwitch;
-    if (!switchControl) {
-        return;
-    }
-    action.switchControl = switchControl;
-    [switchControl removeTarget:action
-                         action:@selector(axs_hg999_switchValueChanged:)
-               forControlEvents:UIControlEventValueChanged];
-    [switchControl addTarget:action
-                       action:@selector(axs_hg999_switchValueChanged:)
-             forControlEvents:UIControlEventValueChanged];
-}
-
-// 只识别带有 HG999 关联标记的设置单元格。
-BOOL axs_hg999_isFullscreenSettingCell(SSSettingTableViewCell *cell) {
-    return [objc_getAssociatedObject(cell, &axs_hg999_fullscreenOptionCellMarker) boolValue];
-}
-
 static NSString * const axs_hg999_videoFullscreenTabBarTransparentKey =
     @"video_fullscreen_tab_bar_transparent";
 
@@ -133,6 +81,14 @@ UITableViewCell *axs_hg999_createVideoFullscreenOptionCell(UITableView *tableVie
     cell.rightSwitchOn = axs_hg999_isVideoFullscreenTabBarTransparent();
     cell.shouldShowTopCorner = YES;
     cell.shouldShowBottomCorner = YES;
-    axs_hg999_prepareFullscreenSettingCell(cell);
+
+    // 使用红果单元格自身的 switchChangedCallback，由其原生 target-action 转发。
+    __weak SSSettingTableViewCell *weakCell = cell;
+    cell.switchChangedCallback = [^(BOOL nextValue) {
+        if (!axs_hg999_setVideoFullscreenTabBarTransparent(nextValue)) {
+            __strong SSSettingTableViewCell *strongCell = weakCell;
+            strongCell.rightSwitchOn = !nextValue;
+        }
+    } copy];
     return cell;
 }

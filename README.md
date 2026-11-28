@@ -16,10 +16,10 @@
 - `Hooks/AxsHG999SettingsPage.xm`：实现 HG999 首层页面与功能列表。
 - `Hooks/AxsHG999VideoFullscreen.xm`：以当前根控制器、首页视频 Feed 控制器身份和底部 Feed 标签状态为门控，按 Eggplant 7.4.7 实际 `applyTabBarAppearanceStyle:refreshForeground:refreshImages:` selector 透明化 TabBar 背景。
 - `Hooks/AxsHG999FullscreenLayout.xm`：开启时把首页竖屏短视频列表与 IGList 视频分页扩到宿主全高；播放器画面跟随 cell 延伸到 TabBar 后方；互动控件调用红果原生 `setContentInsetBottom:` 保持在 TabBar 上沿。关闭时按方向恢复记录的原生 viewport 高度，跨到底栏其他标签关闭也会恢复，并重新对齐当前作品。
-- `Hooks/AxsHG999FullscreenSwitch.xm`：只在 HG999 开关单元格布局后绑定原生开关事件。
+- `Sources/AxsHG999FullscreenSetting.m`：使用红果 `SSSettingTableViewCell.switchChangedCallback` 原生回调保存开关，并触发底栏外观与视频视口刷新；不额外给 `SSMaterialSwitch` 叠加第二个事件 target。
 - `Sources/AxsHG999NativeSettings.m`：运行时查找红果私有单元格并创建，不让私有类产生静态链接依赖。
 - `Sources/AxsHG999SettingsEntry.m`：构造 HG999 原生入口行并负责页面跳转。
-- `Sources/AxsHG999FullscreenSetting.m`：构造功能开关、保存偏好并触发原生底栏样式刷新。
+- `Sources/AxsHG999FullscreenSetting.m`：使用红果 `SSSettingTableViewCell.switchChangedCallback` 原生回调保存开关，并触发底栏外观与视频视口刷新；不额外给 `SSMaterialSwitch` 叠加第二个事件 target。
 - `Sources/AxsHG999Config.m`、`AxsHG999Preferences.m`、`AxsHG999Paths.m`：分别管理配置快照、容器内偏好文件读写和越狱资源路径适配。开关配置保存在 Eggplant 沙盒的 `Library/Application Support/HG999/preferences.plist`；不用越狱全局偏好目录。
 - `Sources/AxsHG999Config.h`、`AxsHG999Preferences.h`、`AxsHG999Paths.h`：仅为工程模板兼容转发头；实际声明都集中在 `Headers/AxsHG999Private.h`。
 

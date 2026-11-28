@@ -53,6 +53,7 @@ BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
 @interface SSSettingTableViewCell : UITableViewCell
 @property (nonatomic, strong) SSMaterialSwitch *rightSwitch;
 @property (nonatomic, copy) id callback;
+@property (nonatomic, copy) id switchChangedCallback;
 @property (nonatomic, copy) NSString *titleStr;
 @property (nonatomic, assign) BOOL shouldShowRightArrow;
 @property (nonatomic, assign) BOOL shouldShowRightSwitch;
@@ -70,16 +71,6 @@ BOOL axs_hg999_writePreference(NSString *key, id value, NSError **error);
 - (void)setShouldShowBottomCorner:(BOOL)show;
 @end
 
-// 只刷新 HG999 功能开关所用的原生单元格事件。
-#if defined(__cplusplus)
-extern "C" {
-#endif
-void axs_hg999_prepareFullscreenSettingCell(SSSettingTableViewCell *cell);
-BOOL axs_hg999_isFullscreenSettingCell(SSSettingTableViewCell *cell);
-#if defined(__cplusplus)
-}
-#endif
-
 // 仅通过运行时查找创建红果私有设置行，避免生成私有类链接符号。
 #if defined(__cplusplus)
 extern "C" {
@@ -91,10 +82,6 @@ UITableViewCell *axs_hg999_dequeueNativeSettingCell(UITableView *tableView,
 #endif
 
 @interface AxsHG999SettingsViewController : UITableViewController
-@end
-
-@interface AxsHG999FullscreenSwitchAction : NSObject
-- (void)axs_hg999_switchValueChanged:(SSMaterialSwitch *)switchControl;
 @end
 
 @interface SSTabBarAppearanceStyle : NSObject
