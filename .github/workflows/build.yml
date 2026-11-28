@@ -85,6 +85,9 @@ jobs:
       - name: Verify native settings order contract
         run: python3 Tests/check_settings_order.py
 
+      - name: Verify settings toggle persistence contract
+        run: python3 Tests/check_setting_toggle_contract.py
+
       - name: Build Package
         run: |
           sh build.sh "${{ matrix.build_variant }}"
